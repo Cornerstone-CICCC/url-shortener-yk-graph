@@ -1,0 +1,8 @@
+{
+  // ===== Prettier =====
+  "prettier.bracketSameLine": true,
+  "prettier.htmlWhitespaceSensitivity": "strict",
+  "prettier.semi": false,
+  "prettier.singleQuote": true,
+  "prettier.printWidth": 200
+}
