@@ -2,13 +2,13 @@ import express, { Request, Response } from 'express'
 import { urlencoded } from 'express'
 import { generate } from 'shortid'
 
+import UrlDatabase from './lib/UrlDatabase'
+
 const app = express()
+const urlDatabase = UrlDatabase.getInstance()
 
 app.set('view engine', 'ejs')
 app.use(urlencoded({ extended: true }))
-
-// In-memory storage for URLs
-const urlDatabase: Record<string, { full: string; clicks: number }> = {}
 
 app.get('/', (req: Request, res: Response) => {
   // Render the list of shortened URLs and their stats here
@@ -17,7 +17,7 @@ app.get('/', (req: Request, res: Response) => {
   //   short,
   //   clicks
   // }));
-  res.render('index', { shortUrls: [] }) // Placeholder, students will populate
+  res.render('index', { shortUrls: urlDatabase.getAll() }) // Placeholder, students will populate
 })
 
 app.post('/shortUrls', (req: Request, res: Response) => {
@@ -26,13 +26,19 @@ app.post('/shortUrls', (req: Request, res: Response) => {
 
   // Generate a unique short URL and store in urlDatabase
   const shortUrl = generate()
-  urlDatabase[shortUrl] = {
-    full: fullUrl,
-    clicks: 0,
-  }
 
-  // Redirect back to home page
-  res.status(302).redirect('/')
+  try {
+    urlDatabase.add(shortUrl, fullUrl)
+    // Redirect back to home page
+    res.status(302).redirect('/')
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.render('index', {
+        shortUrls: urlDatabase.getAll(),
+        error: error.message,
+      })
+    }
+  }
 })
 
 app.get('/:shortUrl', (req: Request, res: Response) => {

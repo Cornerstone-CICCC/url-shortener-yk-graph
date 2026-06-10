@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_2 = require("express");
 const shortid_1 = require("shortid");
+const UrlDatabase_1 = __importDefault(require("./lib/UrlDatabase"));
 const app = (0, express_1.default)();
+const urlDatabase = UrlDatabase_1.default.getInstance();
 app.set('view engine', 'ejs');
 app.use((0, express_2.urlencoded)({ extended: true }));
-// In-memory storage for URLs
-const urlDatabase = {};
 app.get('/', (req, res) => {
     // Render the list of shortened URLs and their stats here
     // const shortUrls = Object.entries(urlDatabase).map(([short, { full, clicks }]) => ({
@@ -18,19 +18,26 @@ app.get('/', (req, res) => {
     //   short,
     //   clicks
     // }));
-    res.render('index', { shortUrls: [] }); // Placeholder, students will populate
+    res.render('index', { shortUrls: urlDatabase.getAll() }); // Placeholder, students will populate
 });
 app.post('/shortUrls', (req, res) => {
     // Capture the full URL from form input
     const { fullUrl } = req.body;
     // Generate a unique short URL and store in urlDatabase
     const shortUrl = (0, shortid_1.generate)();
-    urlDatabase[shortUrl] = {
-        full: fullUrl,
-        clicks: 0,
-    };
-    // Redirect back to home page
-    res.status(302).redirect('/');
+    try {
+        urlDatabase.add(shortUrl, fullUrl);
+        // Redirect back to home page
+        res.status(302).redirect('/');
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            res.render('index', {
+                shortUrls: urlDatabase.getAll(),
+                error: error.message,
+            });
+        }
+    }
 });
 app.get('/:shortUrl', (req, res) => {
     // Check if short URL exists in urlDatabase
