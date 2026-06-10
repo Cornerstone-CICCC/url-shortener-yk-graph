@@ -33,7 +33,11 @@ class UrlDatabase {
         }
     }
     getAll() {
-        return this.store;
+        return Object.entries(this.store).map(([shortUrl, { fullUrl, clicks }]) => ({
+            shortUrl,
+            fullUrl,
+            clicks,
+        }));
     }
 }
 exports.default = UrlDatabase;

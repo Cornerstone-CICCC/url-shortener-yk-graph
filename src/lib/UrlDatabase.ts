@@ -1,9 +1,6 @@
-type UrlDatabaseEntry = {
-  fullUrl: string
-  clicks: number
-}
+import { UrlDatabaseEntry, UrlDatabaseInterface } from '../types'
 
-class UrlDatabase {
+class UrlDatabase implements UrlDatabaseInterface {
   private static instance: UrlDatabase
   private store: Record<string, UrlDatabaseEntry>
 
@@ -41,14 +38,18 @@ class UrlDatabase {
     return this.store[shortUrl]
   }
 
-  incrementClicks(shortUrl: string) {
+  incrementClicks(shortUrl: string): void {
     if (this.store[shortUrl]) {
       this.store[shortUrl].clicks++
     }
   }
 
-  getAll(): Record<string, UrlDatabaseEntry> {
-    return this.store
+  getAll(): Array<{ shortUrl: string; fullUrl: string; clicks: number }> {
+    return Object.entries(this.store).map(([shortUrl, { fullUrl, clicks }]) => ({
+      shortUrl,
+      fullUrl,
+      clicks,
+    }))
   }
 }
 
