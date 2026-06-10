@@ -25,6 +25,8 @@ app.post('/shortUrls', (req: Request, res: Response) => {
 
   try {
     urlDatabase.add(shortUrl, fullUrl)
+    // Redirect back to home page
+    res.status(302).redirect('/')
   } catch (error: unknown) {
     if (error instanceof Error) {
       res.render('index', {
@@ -32,9 +34,6 @@ app.post('/shortUrls', (req: Request, res: Response) => {
         error: error.message,
       })
     }
-  } finally {
-    // Redirect back to home page
-    res.status(302).redirect('/')
   }
 })
 

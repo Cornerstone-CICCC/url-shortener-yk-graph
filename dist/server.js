@@ -23,6 +23,8 @@ app.post('/shortUrls', (req, res) => {
     const shortUrl = (0, shortid_1.generate)();
     try {
         urlDatabase.add(shortUrl, fullUrl);
+        // Redirect back to home page
+        res.status(302).redirect('/');
     }
     catch (error) {
         if (error instanceof Error) {
@@ -31,10 +33,6 @@ app.post('/shortUrls', (req, res) => {
                 error: error.message,
             });
         }
-    }
-    finally {
-        // Redirect back to home page
-        res.status(302).redirect('/');
     }
 });
 app.get('/:shortUrl', (req, res) => {
