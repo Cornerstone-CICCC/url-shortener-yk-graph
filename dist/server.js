@@ -39,7 +39,18 @@ app.post('/shortUrls', (req, res) => {
 });
 app.get('/:shortUrl', (req, res) => {
     // Check if short URL exists in urlDatabase
-    // Increment click count if found and redirect to full URL
-    // Send 404 status if short URL not found
+    const { shortUrl } = req.params;
+    try {
+        const existsUrl = urlDatabase.find(shortUrl);
+        // Increment click count if found and redirect to full URL
+        urlDatabase.incrementClicks(shortUrl);
+        res.redirect(existsUrl.fullUrl);
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            // Send 404 status if short URL not found
+            res.status(404).send(error.message);
+        }
+    }
 });
 app.listen(3200, () => console.log('Server started!!!!'));

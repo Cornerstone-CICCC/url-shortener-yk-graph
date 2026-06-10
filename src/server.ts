@@ -40,8 +40,19 @@ app.post('/shortUrls', (req: Request, res: Response) => {
 
 app.get('/:shortUrl', (req: Request, res: Response) => {
   // Check if short URL exists in urlDatabase
-  // Increment click count if found and redirect to full URL
-  // Send 404 status if short URL not found
+  const { shortUrl } = req.params as { shortUrl: string }
+
+  try {
+    const existsUrl = urlDatabase.find(shortUrl)
+    // Increment click count if found and redirect to full URL
+    urlDatabase.incrementClicks(shortUrl)
+    res.redirect(existsUrl.fullUrl)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      // Send 404 status if short URL not found
+      res.status(404).send(error.message)
+    }
+  }
 })
 
 app.listen(3200, () => console.log('Server started!!!!'))
